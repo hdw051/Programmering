@@ -24,6 +24,7 @@ De applicatie is daarna bereikbaar op `http://localhost:3000`.
 ```bash
 npm run build
 ```
+Wanneer je de applicatie op GitHub Pages plaatst, zorg dan dat in `vite.config.js` de optie `base: './'` is ingesteld. Hiermee worden de gebuildde assets vanaf het juiste pad geladen en voorkom je een wit scherm.
 
 De geoptimaliseerde bestanden worden geplaatst in de map `dist/`, waarmee je de app bijvoorbeeld op GitHub Pages kunt hosten.
 

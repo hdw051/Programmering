@@ -6,4 +6,6 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  // Gebruik een relatieve basis zodat assets correct laden op GitHub Pages
+  base: './',
 });
