@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 function MenuBar({
     selectedPredefinedMovieForQuickAdd,
@@ -78,5 +79,23 @@ function MenuBar({
         </div>
     );
 }
+
+MenuBar.propTypes = {
+    selectedPredefinedMovieForQuickAdd: PropTypes.string.isRequired,
+    handlePredefinedMovieForQuickAddChange: PropTypes.func.isRequired,
+    handleDragStart: PropTypes.func.isRequired,
+    handleOpenMovieModal: PropTypes.func.isRequired,
+    predefinedMovies: PropTypes.arrayOf(
+        PropTypes.shape({
+            title: PropTypes.string.isRequired,
+            genre: PropTypes.string.isRequired,
+            duration: PropTypes.number.isRequired
+        })
+    ).isRequired,
+    currentPage: PropTypes.string.isRequired,
+    setCurrentPage: PropTypes.func.isRequired,
+    viewMode: PropTypes.string.isRequired,
+    toggleViewMode: PropTypes.func.isRequired
+};
 
 export default MenuBar;

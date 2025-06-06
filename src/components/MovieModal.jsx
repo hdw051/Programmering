@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { formatDate } from '../utils';
+import PropTypes from 'prop-types';
+import { formatDate } from '../utils/dateUtils';
 
 function MovieModal({
     show,
@@ -27,138 +28,198 @@ function MovieModal({
             setTime(movieData?.time || '');
             setGenre(movieData?.genre || '');
             setDate(movieData?.date || formatDate(new Date()));
-            setDuration(String(movieData?.duration || ''));
+            setDuration(movieData?.duration || '');
             setSelectedHall(movieData?.hall || halls[0]);
-            setSelectedPredefinedMovie(currentTitle);
-            setInternalMessage(message);
+            setSelectedPredefinedMovie('');
+            setInternalMessage('');
         }
-    }, [show, movieData, halls, message]);
+    }, [show, movieData, halls]);
 
     useEffect(() => {
-        if (show) {
-            setInternalMessage('');
-            if (clearMessage) clearMessage();
+        if (message) {
+            setInternalMessage(message);
+            const timer = setTimeout(() => {
+                setInternalMessage('');
+                clearMessage();
+            }, 3000);
+            return () => clearTimeout(timer);
         }
-    }, [show, clearMessage]);
+    }, [message, clearMessage]);
 
     const handlePredefinedMovieChange = (e) => {
-        const selectedTitle = e.target.value;
-        setSelectedPredefinedMovie(selectedTitle);
-        if (selectedTitle === 'Kies een film...') {
-            setTitle('');
-            setGenre('');
-            setDuration('');
-            return;
+        const selectedMovie = predefinedMovies.find(movie => movie.title === e.target.value);
+        if (selectedMovie) {
+            setTitle(selectedMovie.title);
+            setGenre(selectedMovie.genre);
+            setDuration(selectedMovie.duration);
         }
-        const movie = predefinedMovies.find((m) => m.title === selectedTitle);
-        if (movie) {
-            setTitle(movie.title);
-            setGenre(movie.genre);
-            setDuration(String(movie.duration));
-        }
+        setSelectedPredefinedMovie(e.target.value);
     };
 
     const handleSubmit = () => {
-        if (!title || !time || !genre || !date || !duration || !selectedHall) {
-            setInternalMessage('Vul alle velden in (titel, tijd, genre, datum, duur, zaal).');
-            return;
-        }
-        const timeRegex = /^(?:2[0-3]|[01]?[0-9]):[0-5][0-9]$/;
-        if (!timeRegex.test(time)) {
-            setInternalMessage('Tijd moet in HH:MM formaat zijn (bijv. 20:00).');
-            return;
-        }
-        if (isNaN(parseInt(duration, 10)) || parseInt(duration, 10) <= 0) {
-            setInternalMessage('Duur moet een positief getal zijn.');
+        if (!title || !time || !date || !selectedHall || !duration) {
+            setInternalMessage('Vul alle verplichte velden in');
             return;
         }
 
-        onSave({
-            id: movieData ? movieData.id : null,
+        const movie = {
+            id: movieData?.id || Date.now().toString(),
             title,
             time,
             genre,
             date,
             duration: parseInt(duration, 10),
-            hall: selectedHall,
-        });
+            hall: selectedHall
+        };
+
+        onSave(movie);
     };
 
     if (!show) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-purple-700 bg-opacity-95 p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in">
-                <h2 className="text-2xl font-semibold mb-5 text-center">{movieData ? 'Film bewerken' : 'Film toevoegen'}</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-purple-800 p-6 rounded-lg shadow-xl w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-4 text-white">
+                    {movieData ? 'Film bewerken' : 'Nieuwe film toevoegen'}
+                </h2>
+                
                 {internalMessage && (
-                    <div className="bg-yellow-400 text-purple-900 p-3 rounded-md mb-4 text-center shadow-md animate-bounce-in">
+                    <div className="mb-4 p-2 bg-red-500 text-white rounded">
                         {internalMessage}
                     </div>
                 )}
-                <div className="grid grid-cols-1 gap-4">
-                    <select
-                        value={selectedPredefinedMovie}
-                        onChange={handlePredefinedMovieChange}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200 appearance-none"
-                    >
-                        {predefinedMovies.map((movie) => (
-                            <option key={movie.title} value={movie.title}>
-                                {movie.title} {movie.duration ? `(${movie.duration} min)` : ''}
-                            </option>
-                        ))}
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="Filmtitel"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                    />
-                    <input
-                        type="time"
-                        placeholder="Tijd (HH:MM)"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                    />
-                    <input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Duur (minuten)"
-                        value={duration}
-                        onChange={(e) => setDuration(e.target.value)}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                    />
-                    <select
-                        value={selectedHall}
-                        onChange={(e) => setSelectedHall(e.target.value)}
-                        className="p-3 rounded-md bg-purple-800 border border-purple-600 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200 appearance-none"
-                    >
-                        {halls.map((hallName) => (
-                            <option key={hallName} value={hallName}>{hallName}</option>
-                        ))}
-                    </select>
-                    <button
-                        onClick={handleSubmit}
-                        className="w-full bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mt-4"
-                    >
-                        {movieData ? 'Film bijwerken' : 'Film toevoegen'}
-                    </button>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-white mb-1">Film selecteren</label>
+                        <select
+                            value={selectedPredefinedMovie}
+                            onChange={handlePredefinedMovieChange}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                        >
+                            <option value="">Kies een film...</option>
+                            {predefinedMovies.map((movie) => (
+                                <option key={movie.title} value={movie.title}>
+                                    {movie.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Titel *</label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Tijd *</label>
+                        <input
+                            type="time"
+                            value={time}
+                            onChange={(e) => setTime(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Datum *</label>
+                        <input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Genre</label>
+                        <input
+                            type="text"
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Duur (minuten) *</label>
+                        <input
+                            type="number"
+                            value={duration}
+                            onChange={(e) => setDuration(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Zaal *</label>
+                        <select
+                            value={selectedHall}
+                            onChange={(e) => setSelectedHall(e.target.value)}
+                            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500"
+                            required
+                        >
+                            {halls.map((hall) => (
+                                <option key={hall} value={hall}>
+                                    {hall}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex justify-end space-x-3">
                     <button
                         onClick={onClose}
-                        className="w-full bg-gray-500 hover:bg-gray-600 active:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 mt-2"
+                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                     >
                         Annuleren
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                    >
+                        {movieData ? 'Bewerken' : 'Toevoegen'}
                     </button>
                 </div>
             </div>
         </div>
     );
 }
+
+MovieModal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    movieData: PropTypes.shape({
+        id: PropTypes.string,
+        title: PropTypes.string,
+        time: PropTypes.string,
+        genre: PropTypes.string,
+        date: PropTypes.string,
+        duration: PropTypes.number,
+        hall: PropTypes.string
+    }),
+    onSave: PropTypes.func.isRequired,
+    predefinedMovies: PropTypes.arrayOf(
+        PropTypes.shape({
+            title: PropTypes.string.isRequired,
+            genre: PropTypes.string.isRequired,
+            duration: PropTypes.number.isRequired
+        })
+    ).isRequired,
+    halls: PropTypes.arrayOf(PropTypes.string).isRequired,
+    message: PropTypes.string,
+    clearMessage: PropTypes.func.isRequired
+};
 
 export default MovieModal;
