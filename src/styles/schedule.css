@@ -1,0 +1,333 @@
+/* CSS RESET VOOR DE SCHEDULE GRID */
+.schedule-grid-container, .schedule-grid, .time-header, .hall-header, .day-header, .time-slot, .movie-card, .movie-info {
+    min-height: 0 !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+}
+
+.schedule-grid-container {
+    background: #6d4bc1;
+    padding: 0.5rem;
+    border-radius: 8px;
+    flex: 1;
+    overflow: auto; /* Allows scrolling if content exceeds container */
+    width: 100%;
+    height: 100%;
+}
+
+.schedule-grid {
+    background: #6d4bc1;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+    border: 1px solid #4b357a;
+    width: 100%;
+    /* MAIN GRID CONTAINER - Defines ALL columns and rows */
+    display: grid;
+    /* grid-template-columns will be set dynamically in App.jsx */
+    /* Rows defined dynamically in App.jsx */
+    row-gap: 2px; /* Thin horizontal line between each row */
+}
+
+/* Date Navigation Menu */
+.date-navigation {
+    background: #5a3ea0;
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid #4b357a;
+    height: 32px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.date-navigation button {
+    background: #7c5fd6;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.date-navigation button:hover {
+    background: #8e6fe3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.date-navigation button:active {
+    background: #6d4bc1;
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.date-navigation .current-week {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Time Headers Row (Removed - time headers are direct grid items) */
+
+.time-header {
+    color: #fff;
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    border-right: 1px solid #4b357a;
+    padding: 0.125rem 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    background: #5a3ea0; /* Add background back */
+    /* Position and size determined by grid-column/row in App.jsx */
+    /* grid-column and grid-row will be set dynamically in App.jsx */
+    height: clamp(20px, 3vh, 24px); /* Match time slot height */
+    display: flex; /* For centering text */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hall Section (Removed) */
+
+/* Hall Header */
+.hall-header {
+    background: #5a3ea0;
+    color: #fff;
+    font-size: clamp(0.7rem, 1.2vw, 0.875rem);
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-right: 1px solid #4b357a;
+    border-radius: 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    min-width: clamp(40px, 5vw, 60px); /* Match header column width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+    /* Position and size determined by grid-column/row in App.jsx */
+    grid-column: 1; 
+    /* grid-row will be set dynamically in App.jsx */
+    border-bottom: 2px solid #ffffff; /* Enhanced bottom border between halls */
+}
+
+/* Hall Content (Removed) */
+
+/* Day Row Styling (Removed) */
+
+/* Day Header */
+.day-header {
+    background: #5a3ea0;
+    color: #fff;
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    font-weight: 500;
+    border-right: 1px solid #4b357a;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: clamp(40px, 5vw, 60px); /* Match header column width */
+    flex-shrink: 0; /* Prevent shrinking */
+    /* Position and size determined by grid-column/row in App.jsx */
+    grid-column: 1;
+    /* grid-row will be set dynamically in App.jsx */
+    border-bottom: 1px solid #4b357a; /* Add bottom border */
+    display: flex; /* For centering text */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Time Slots Container (Removed - time slots are direct grid items) */
+
+/* Time Slot */
+.time-slot {
+    border-right: 1px solid #4b357a;
+    border-bottom: 1px solid #4b357a; /* Add bottom border for rows */
+    background: rgba(167, 139, 250, 0.1);
+    height: clamp(20px, 3vh, 24px); /* Set consistent row height */
+    cursor: pointer;
+    position: relative; /* Needed for positioning movie cards */
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    /* Position and size determined by grid-column/row in App.jsx */
+    /* grid-column set dynamically in App.jsx */
+    /* grid-row set dynamically in App.jsx */
+}
+
+.time-slot:hover {
+    background: rgba(167, 139, 250, 0.2);
+}
+
+.time-slot.drag-over {
+    background: rgba(167, 139, 250, 0.3);
+    border: 2px dashed #a78bfa;
+}
+
+/* Movie Card Styling */
+.movie-card {
+    background: #7c5fd6;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    height: calc(100% - 2px) !important; /* Fill the grid row height */
+    /* min-height: unset !important; */ /* Not needed with grid */
+    margin: 1px; /* Small margin within the grid cell */
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    color: #fff;
+    box-shadow: none;
+    cursor: grab;
+    position: relative; /* Positioned within the grid cell */
+    /* left: 0; top: 0; */ /* Not needed with grid item */
+    z-index: 5;
+    overflow: hidden;
+    /* Position and size determined by grid-column/row and span in App.jsx */
+    /* grid-column and grid-row will be set dynamically in App.jsx */
+    width: auto; /* Auto width based on grid column span */
+    opacity: 0.95;
+}
+
+.movie-card:active {
+    cursor: grabbing;
+}
+
+.movie-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.movie-time, .movie-title {
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0;
+    margin: 0;
+}
+
+.movie-title {
+    font-weight: 500;
+    margin-left: 0.25rem;
+}
+
+/* Delete Button Styling */
+.delete-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 16px; /* Increased size */
+    height: 16px; /* Increased size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px; /* Increased font size */
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    padding: 0; /* Remove padding */
+}
+
+.movie-card:hover .delete-button {
+    opacity: 1;
+}
+
+.delete-button:hover {
+    background: rgba(239, 68, 68, 1);
+}
+
+/* Drag and Drop Styles */
+.fade-in {
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Sub-menu Styling */
+.sub-menu {
+    background: #5a3ea0;
+    color: #fff;
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    border-bottom: 1px solid #4b357a;
+}
+
+.sub-menu button {
+    background: #7c5fd6;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.sub-menu button:hover {
+    background: #8e6fe3;
+    transform: translateY(-1px);
+}
+
+.sub-menu button:active {
+    background: #6d4bc1;
+    transform: translateY(0);
+}
+
+.sub-menu select {
+    background: #7c5fd6;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.sub-menu select:hover {
+    background: #8e6fe3;
+}
+
+.sub-menu select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124, 95, 214, 0.5);
+} 

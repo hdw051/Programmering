@@ -1,4 +1,4 @@
-export const halls = ['Zaal 1', 'Zaal 2', 'Zaal 3', 'Zaal 4'];
+export const halls = ['Zaal 1', 'Zaal 2', 'Zaal 3', 'Zaal 4', 'Zaal 5'];
 
 export const predefinedMovies = [
     { title: 'Kies een film...', genre: '', duration: '' },
