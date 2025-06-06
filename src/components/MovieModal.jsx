@@ -19,6 +19,7 @@ function MovieModal({
     const [selectedHall, setSelectedHall] = useState(halls[0]);
     const [selectedPredefinedMovie, setSelectedPredefinedMovie] = useState('');
     const [internalMessage, setInternalMessage] = useState('');
+    const [features, setFeatures] = useState({ NL: false, OV: false, "2D": false, "3D": false });
 
     useEffect(() => {
         if (show) {
@@ -31,6 +32,7 @@ function MovieModal({
             setSelectedHall(movieData?.hall || halls[0]);
             setSelectedPredefinedMovie(currentTitle);
             setInternalMessage(message);
+            setFeatures(movieData?.features || { NL: false, OV: false, "2D": false, "3D": false });
         }
     }, [show, movieData, halls, message]);
 
@@ -81,6 +83,7 @@ function MovieModal({
             date,
             duration: parseInt(duration, 10),
             hall: selectedHall,
+            features,
         });
     };
 
@@ -143,6 +146,19 @@ function MovieModal({
                             <option key={hallName} value={hallName}>{hallName}</option>
                         ))}
                     </select>
+                    <div className="flex flex-wrap gap-2">
+                        {['NL', 'OV', '2D', '3D'].map((f) => (
+                            <label key={f} className="flex items-center gap-1 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={features[f]}
+                                    onChange={(e) => setFeatures(prev => ({ ...prev, [f]: e.target.checked }))}
+                                    className="form-checkbox h-4 w-4 text-indigo-600"
+                                />
+                                <span>{f}</span>
+                            </label>
+                        ))}
+                    </div>
                     <button
                         onClick={handleSubmit}
                         className="w-full bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 mt-4"
