@@ -349,6 +349,24 @@ function SettingsPage() {
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+const LOCAL_STORAGE_KEY = `movies_${appId}`;
+
+const loadLocalMovies = () => {
+    try {
+        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch {
+        return [];
+    }
+};
+
+const saveLocalMovies = (moviesToSave) => {
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(moviesToSave));
+    } catch (e) {
+        console.error('Error saving to localStorage', e);
+    }
+};
 
 function App() {
     const [movies, setMovies] = useState([]);
@@ -379,6 +397,12 @@ function App() {
     const dragMovieRef = useRef(null);
 
     useEffect(() => {
+        if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+            setMovies(loadLocalMovies());
+            setUserId('local-user');
+            setIsAuthReady(true);
+            return;
+        }
         try {
             firebase.initializeApp(firebaseConfig);
             const firestoreDb = firebase.firestore();
@@ -411,13 +435,22 @@ function App() {
             return () => unsubscribe();
         } catch (error) {
             console.error('Fout bij het initialiseren van Firebase:', error);
-            setMessage('Fout bij het initialiseren van de database. Controleer de console voor details.');
+            setMessage('Fout bij het initialiseren van de database. Er wordt lokaal opgeslagen.');
+            setMovies(loadLocalMovies());
+            setUserId('local-user');
+            setIsAuthReady(true);
             setTimeout(() => setMessage(''), 3000);
         }
     }, []);
 
     useEffect(() => {
-        if (!db || !auth || !isAuthReady || !userId) return;
+        if (!isAuthReady) return;
+
+        if (!db) {
+            setMovies(loadLocalMovies());
+            return;
+        }
+        if (!auth || !userId) return;
 
         const path = `artifacts/${appId}/users/${userId}/moviePrograms`;
         const unsubscribe = db.collection(path).onSnapshot((snapshot) => {
@@ -438,7 +471,15 @@ function App() {
 
     const handleSaveMovie = async (movie) => {
         if (!db || !userId) {
-            setMessage('Database is niet klaar of gebruiker is niet ingelogd.');
+            const id = movie.id || crypto.randomUUID();
+            const updatedMovie = { ...movie, id };
+            setMovies((prev) => {
+                const exists = prev.some((m) => m.id === id);
+                return exists ? prev.map((m) => (m.id === id ? updatedMovie : m)) : [...prev, updatedMovie];
+            });
+            setMessage(`Film succesvol ${movie.id ? 'bijgewerkt' : 'toegevoegd'} (lokaal)!`);
+            setShowMovieModal(false);
+            setMovieDataForModal(null);
             return;
         }
 
@@ -472,7 +513,12 @@ function App() {
 
     const handleDeleteMovie = async (id) => {
         if (!db || !userId) {
-            setMessage('Database is niet klaar of gebruiker is niet ingelogd.');
+            const confirmed = await showConfirmDialog('Weet je zeker dat je deze film wilt verwijderen?');
+            if (confirmed) {
+                setMovies((prev) => prev.filter((m) => m.id !== id));
+                setMessage('Film succesvol verwijderd (lokaal)!');
+                setTimeout(() => setMessage(''), 3000);
+            }
             return;
         }
         const confirmed = await showConfirmDialog('Weet je zeker dat je deze film wilt verwijderen?');
@@ -489,6 +535,12 @@ function App() {
             }
         }
     };
+
+    useEffect(() => {
+        if (!db) {
+            saveLocalMovies(movies);
+        }
+    }, [movies, db]);
 
     const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
         const date = new Date(currentWeekStart);

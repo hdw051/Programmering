@@ -49,3 +49,7 @@ De applicatie verwacht enkele globale variabelen voor Firebase-configuratie en a
 
 Zonder deze configuratie kun je Firebase niet gebruiken en zal de app foutmeldingen tonen.
 
+### Offline gebruik
+
+Wanneer er geen Firebase-configuratie aanwezig is, slaat de applicatie de filmgegevens lokaal op in `localStorage`. Zo kun je de planner ook zonder internetverbinding testen. De gegevens blijven bewaard in de browser totdat je de cache leegt.
+
