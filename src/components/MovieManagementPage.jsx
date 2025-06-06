@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 function MovieManagementPage({ movies, handleEditMovie, handleDeleteMovie }) {
     return (
@@ -40,5 +41,20 @@ function MovieManagementPage({ movies, handleEditMovie, handleDeleteMovie }) {
         </div>
     );
 }
+
+MovieManagementPage.propTypes = {
+    movies: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            title: PropTypes.string.isRequired,
+            date: PropTypes.string.isRequired,
+            time: PropTypes.string.isRequired,
+            hall: PropTypes.string.isRequired,
+            duration: PropTypes.number.isRequired
+        })
+    ).isRequired,
+    handleEditMovie: PropTypes.func.isRequired,
+    handleDeleteMovie: PropTypes.func.isRequired
+};
 
 export default MovieManagementPage;

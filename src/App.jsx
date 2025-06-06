@@ -6,8 +6,8 @@ import MovieModal from "./components/MovieModal.jsx";
 import MenuBar from "./components/MenuBar.jsx";
 import MovieManagementPage from "./components/MovieManagementPage.jsx";
 import SettingsPage from "./components/SettingsPage.jsx";
-import { halls, predefinedMovies } from "./constants";
-import { formatDate, parseDate, getMonday } from "./utils";
+import { halls, predefinedMovies } from "./constants/movies";
+import { formatDate, parseDate, getMonday } from "./utils/dateUtils";
 
 // Define Firebase config and app ID for Canvas environment
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -46,7 +46,7 @@ function App() {
 
     const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
     const [showMovieModal, setShowMovieModal] = useState(false);
-    const [movieDataForModal, setMovieDataForModal] = useState(null); // Data to pass to modal for editing/pre-filling
+    const [currentMovie, setCurrentMovie] = useState(null);
 
     const [selectedPredefinedMovieForQuickAdd, setSelectedPredefinedMovieForQuickAdd] = useState('Kies een film...'); // Initialize with placeholder
     const [viewMode, setViewMode] = useState('hall'); // 'hall' (default) or 'day'
@@ -159,7 +159,8 @@ function App() {
             });
             setMessage(`Film succesvol ${movie.id ? 'bijgewerkt' : 'toegevoegd'} (lokaal)!`);
             setShowMovieModal(false);
-            setMovieDataForModal(null);
+            setCurrentMovie(null);
+            setTimeout(() => setMessage(''), 3000); // Clear message after 3 seconds
             return;
         }
 
@@ -176,7 +177,7 @@ function App() {
                 setMessage('Film succesvol toegevoegd!');
             }
             setShowMovieModal(false); // Close modal after save
-            setMovieDataForModal(null); // Clear modal data
+            setCurrentMovie(null); // Clear movie data
             // selectedPredefinedMovieForQuickAdd is intentionally NOT cleared here to keep selection
             setTimeout(() => setMessage(''), 3000); // Clear message after 3 seconds
         } catch (e) {
@@ -187,7 +188,7 @@ function App() {
     };
 
     const handleEditMovie = (movie) => {
-        setMovieDataForModal(movie);
+        setCurrentMovie(movie);
         setShowMovieModal(true);
         setMessage(''); // Clear main app message when opening modal
     };
@@ -431,7 +432,7 @@ function App() {
     };
 
     const handleOpenMovieModal = () => {
-        setMovieDataForModal(null); // Clear data for new movie
+        setCurrentMovie(null); // Clear data for new movie
         setShowMovieModal(true); // Open empty modal
         setMessage('');
     };
@@ -455,7 +456,7 @@ function App() {
             await handleSaveMovie(newMovie); // Add directly
         } else {
             // Open modal for manual input or selection
-            setMovieDataForModal({ date: dayFullDate, time: slotTime, hall: hallName });
+            setCurrentMovie({ date: dayFullDate, time: slotTime, hall: hallName });
             setShowMovieModal(true);
         }
     };
@@ -721,7 +722,7 @@ function App() {
                     <MovieModal
                         show={showMovieModal}
                         onClose={() => setShowMovieModal(false)}
-                        movieData={movieDataForModal}
+                        movieData={currentMovie}
                         onSave={handleSaveMovie}
                         predefinedMovies={predefinedMovies}
                         halls={halls}
