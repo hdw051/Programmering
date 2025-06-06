@@ -518,11 +518,11 @@ function App() {
                     background-color: rgba(167, 139, 250, 0.25); /* Slightly darker on drag-over */
                 }
                 .movie-card {
-                    background-color: rgba(79, 70, 229, 0.9);
+                    background-color: rgba(96, 165, 250, 0.9); /* distinct blue */
                     border-radius: 4px;
                     padding: 2px;
                     margin: 0;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
                     text-align: left;
                     cursor: pointer;
                     transition: all 0.1s ease-in-out;
@@ -534,7 +534,8 @@ function App() {
                     overflow: hidden;
                     height: 100%;
                     width: 100%;
-                    border: 1px solid rgba(139, 92, 246, 0.5);
+                    border: 1px solid rgba(37, 99, 235, 1);
+                    opacity: 0.95; /* allow slight see-through when overlapping */
                 }
                 .movie-card:hover {
                     transform: translateY(-1px) scale(1.01);
@@ -542,7 +543,8 @@ function App() {
                 }
                 .movie-card .movie-info {
                     display: flex;
-                    align-items: baseline;
+                    align-items: center;
+                    gap: 2px;
                     flex-grow: 1;
                     overflow: hidden;
                     white-space: nowrap;
