@@ -18,7 +18,11 @@ const LOCAL_STORAGE_KEY = `movies_${appId}`;
 const loadLocalMovies = () => {
     try {
         const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        const parsed = data ? JSON.parse(data) : [];
+        return parsed.map(m => ({
+            ...m,
+            features: m.features || { NL: false, OV: false, "2D": false, "3D": false }
+        }));
     } catch {
         return [];
     }
@@ -130,7 +134,8 @@ function App() {
             const moviesData = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
-                duration: doc.data().duration ? parseInt(doc.data().duration, 10) : 90
+                duration: doc.data().duration ? parseInt(doc.data().duration, 10) : 90,
+                features: doc.data().features || { NL: false, OV: false, "2D": false, "3D": false }
             }));
             setMovies(moviesData);
         }, (error) => {
@@ -403,6 +408,7 @@ function App() {
                 date: dayFullDate,
                 time: slotTime,
                 hall: hallName,
+                features: { NL: false, OV: false, "2D": false, "3D": false },
             };
             await handleSaveMovie(newPredefinedMovie);
         }
@@ -434,6 +440,7 @@ function App() {
                 date: dayFullDate,
                 time: slotTime,
                 hall: hallName,
+                features: { NL: false, OV: false, "2D": false, "3D": false },
             };
             await handleSaveMovie(newMovie); // Add directly
         } else {
@@ -557,6 +564,12 @@ function App() {
                     overflow: hidden;
                     text-overflow: ellipsis;
                     flex-grow: 1;
+                }
+                .movie-card .features span {
+                    background-color: rgba(55, 48, 163, 0.9);
+                    padding: 0 2px;
+                    border-radius: 2px;
+                    font-size: 0.55rem;
                 }
                 .movie-card button {
                     flex-shrink: 0;
@@ -709,14 +722,14 @@ function App() {
                             <h2 className="text-2xl font-semibold mb-5 text-center">Weekprogramma</h2>
 
                             {/* Week Navigation */}
-                            <div className="flex justify-between items-center mb-4 px-2">
+                            <div className="flex flex-wrap justify-between items-center mb-4 px-2 gap-2">
                                 <button
                                     onClick={goToPreviousWeek}
                                     className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-all duration-200 shadow-md"
                                 >
                                     &larr; Vorige week
                                 </button>
-                                <span className="text-xl font-semibold text-center">
+                                <span className="text-xl font-semibold text-center flex-grow">
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(currentWeekStart)}
                                     {' - '}
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(daysOfWeek[6].fullDate ? parseDate(daysOfWeek[6].fullDate) : new Date())}
@@ -727,8 +740,6 @@ function App() {
                                 >
                                     Volgende week &rarr;
                                 </button>
-                            </div>
-                            <div className="text-center mb-4">
                                 <button
                                     onClick={goToToday}
                                     className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-5 rounded-lg transition-all duration-200 shadow-md"
@@ -786,6 +797,11 @@ function App() {
                                                                         <div className="movie-info">
                                                                             <p className="movie-time">{movie.time}</p>
                                                                             <h4 className="movie-title">{movie.title}</h4>
+                                                                            <div className="features flex gap-1 ml-1">
+                                                                                {movie.features && Object.keys(movie.features).filter(f => movie.features[f]).map(f => (
+                                                                                    <span key={f} className="bg-purple-900 px-1 rounded text-[0.55rem]">{f}</span>
+                                                                                ))}
+                                                                            </div>
                                                                         </div>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); handleDeleteMovie(movie.id); }}
@@ -850,6 +866,11 @@ function App() {
                                                                         <div className="movie-info">
                                                                             <p className="movie-time">{movie.time}</p>
                                                                             <h4 className="movie-title">{movie.title}</h4>
+                                                                            <div className="features flex gap-1 ml-1">
+                                                                                {movie.features && Object.keys(movie.features).filter(f => movie.features[f]).map(f => (
+                                                                                    <span key={f} className="bg-purple-900 px-1 rounded text-[0.55rem]">{f}</span>
+                                                                                ))}
+                                                                            </div>
                                                                         </div>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); handleDeleteMovie(movie.id); }}
