@@ -20,6 +20,7 @@ function MovieModal({
     const [selectedHall, setSelectedHall] = useState(halls[0]);
     const [selectedPredefinedMovie, setSelectedPredefinedMovie] = useState('');
     const [internalMessage, setInternalMessage] = useState('');
+    const [features, setFeatures] = useState({ NL: false, OV: false, "2D": false, "3D": false });
 
     useEffect(() => {
         if (show) {
@@ -30,10 +31,11 @@ function MovieModal({
             setDate(movieData?.date || formatDate(new Date()));
             setDuration(movieData?.duration || '');
             setSelectedHall(movieData?.hall || halls[0]);
-            setSelectedPredefinedMovie('');
-            setInternalMessage('');
+            setSelectedPredefinedMovie(currentTitle);
+            setInternalMessage(message);
+            setFeatures(movieData?.features || { NL: false, OV: false, "2D": false, "3D": false });
         }
-    }, [show, movieData, halls]);
+    }, [show, movieData, halls, message]);
 
     useEffect(() => {
         if (message) {
@@ -69,7 +71,8 @@ function MovieModal({
             genre,
             date,
             duration: parseInt(duration, 10),
-            hall: selectedHall
+            hall: selectedHall,
+            features
         };
 
         onSave(movie);
@@ -101,7 +104,7 @@ function MovieModal({
                             <option value="">Kies een film...</option>
                             {predefinedMovies.map((movie) => (
                                 <option key={movie.title} value={movie.title}>
-                                    {movie.title}
+                                    {movie.title} {movie.duration ? `(${movie.duration} min)` : ''}
                                 </option>
                             ))}
                         </select>
@@ -176,6 +179,26 @@ function MovieModal({
                             ))}
                         </select>
                     </div>
+
+                    <div>
+                        <label className="block text-white mb-1">Features</label>
+                        <div className="flex flex-wrap gap-4">
+                            {['NL', 'OV', '2D', '3D'].map((feature) => (
+                                <label key={feature} className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={features[feature]}
+                                        onChange={(e) => setFeatures(prev => ({
+                                            ...prev,
+                                            [feature]: e.target.checked
+                                        }))}
+                                        className="w-4 h-4 rounded border-purple-500"
+                                    />
+                                    <span className="text-white">{feature}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mt-6 flex justify-end space-x-3">
@@ -207,7 +230,13 @@ MovieModal.propTypes = {
         genre: PropTypes.string,
         date: PropTypes.string,
         duration: PropTypes.number,
-        hall: PropTypes.string
+        hall: PropTypes.string,
+        features: PropTypes.shape({
+            NL: PropTypes.bool,
+            OV: PropTypes.bool,
+            "2D": PropTypes.bool,
+            "3D": PropTypes.bool
+        })
     }),
     onSave: PropTypes.func.isRequired,
     predefinedMovies: PropTypes.arrayOf(

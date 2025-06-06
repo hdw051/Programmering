@@ -18,7 +18,11 @@ const LOCAL_STORAGE_KEY = `movies_${appId}`;
 const loadLocalMovies = () => {
     try {
         const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        const parsed = data ? JSON.parse(data) : [];
+        return parsed.map(m => ({
+            ...m,
+            features: m.features || { NL: false, OV: false, "2D": false, "3D": false }
+        }));
     } catch {
         return [];
     }
@@ -130,7 +134,8 @@ function App() {
             const moviesData = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
-                duration: doc.data().duration ? parseInt(doc.data().duration, 10) : 90
+                duration: doc.data().duration ? parseInt(doc.data().duration, 10) : 90,
+                features: doc.data().features || { NL: false, OV: false, "2D": false, "3D": false }
             }));
             setMovies(moviesData);
         }, (error) => {
@@ -322,9 +327,10 @@ function App() {
 
     // --- Drag and Drop Handlers ---
     const handleDragStart = (e, movieBeingDragged = null) => {
+        e.dataTransfer.effectAllowed = 'move';
         if (movieBeingDragged) {
             // Dragging an existing movie from the schedule
-            e.dataTransfer.setData('text/plain', JSON.stringify({
+            const payload = {
                 type: 'existing',
                 id: movieBeingDragged.id,
                 title: movieBeingDragged.title,
@@ -333,14 +339,16 @@ function App() {
                 originalDate: movieBeingDragged.date,
                 originalHall: movieBeingDragged.hall,
                 originalTime: movieBeingDragged.time
-            }));
-            dragMovieRef.current = { id: movieBeingDragged.id, type: 'existing' };
+            };
+            e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+            dragMovieRef.current = payload;
         } else {
             // Dragging a new movie from the quick add menu
             const selectedMovie = predefinedMovies.find(m => m.title === selectedPredefinedMovieForQuickAdd);
             if (selectedMovie && selectedMovie.title !== 'Kies een film...') {
-                e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'new', movie: selectedMovie }));
-                dragMovieRef.current = { type: 'new', movie: selectedMovie };
+                const payload = { type: 'new', movie: selectedMovie };
+                e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+                dragMovieRef.current = payload;
             } else {
                 e.preventDefault(); // Prevent drag if no movie selected
             }
@@ -360,6 +368,7 @@ function App() {
 
     const handleDragOver = (e) => {
         e.preventDefault(); // Necessary to allow a drop
+        e.dataTransfer.dropEffect = 'move';
     };
 
     const handleDrop = async (e, dayFullDate, hallName, slotTime) => {
@@ -367,9 +376,15 @@ function App() {
 
         let draggedData;
         try {
-            draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const text = e.dataTransfer.getData('text/plain');
+            draggedData = text ? JSON.parse(text) : null;
         } catch (error) {
             console.error("Error parsing dragged movie data:", error);
+        }
+        if (!draggedData && dragMovieRef.current) {
+            draggedData = dragMovieRef.current;
+        }
+        if (!draggedData) {
             setMessage("Fout bij het verwerken van slepen en neerzetten.");
             setTimeout(() => setMessage(''), 3000);
             return;
@@ -404,6 +419,7 @@ function App() {
                 date: dayFullDate,
                 time: slotTime,
                 hall: hallName,
+                features: { NL: false, OV: false, "2D": false, "3D": false },
             };
             await handleSaveMovie(newPredefinedMovie);
         }
@@ -435,6 +451,7 @@ function App() {
                 date: dayFullDate,
                 time: slotTime,
                 hall: hallName,
+                features: { NL: false, OV: false, "2D": false, "3D": false },
             };
             await handleSaveMovie(newMovie); // Add directly
         } else {
@@ -465,6 +482,7 @@ function App() {
                     display: grid;
                     grid-template-columns: 120px repeat(${timeSlots.length}, minmax(40px, 1fr));
                     min-width: calc(120px + ${timeSlots.length} * 40px); /* Ensure minimum width for scrolling */
+                    grid-auto-rows: 30px; /* Keep rows at a fixed height */
                 }
                 .grid-header, .grid-cell {
                     padding: 2px;
@@ -475,7 +493,7 @@ function App() {
                     justify-content: center;
                     align-items: center;
                     box-sizing: border-box;
-                    min-height: 30px;
+                    height: 30px; /* Prevent row height from expanding */
                     font-size: 0.7rem;
                 }
                 .grid-header {
@@ -512,11 +530,11 @@ function App() {
                     background-color: rgba(167, 139, 250, 0.25); /* Slightly darker on drag-over */
                 }
                 .movie-card {
-                    background-color: rgba(79, 70, 229, 0.9);
+                    background-color: rgba(96, 165, 250, 0.9); /* distinct blue */
                     border-radius: 4px;
                     padding: 2px;
                     margin: 0;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
                     text-align: left;
                     cursor: pointer;
                     transition: all 0.1s ease-in-out;
@@ -528,7 +546,8 @@ function App() {
                     overflow: hidden;
                     height: 100%;
                     width: 100%;
-                    border: 1px solid rgba(139, 92, 246, 0.5);
+                    border: 1px solid rgba(37, 99, 235, 1);
+                    opacity: 0.95; /* allow slight see-through when overlapping */
                 }
                 .movie-card:hover {
                     transform: translateY(-1px) scale(1.01);
@@ -536,7 +555,8 @@ function App() {
                 }
                 .movie-card .movie-info {
                     display: flex;
-                    align-items: baseline;
+                    align-items: center;
+                    gap: 2px;
                     flex-grow: 1;
                     overflow: hidden;
                     white-space: nowrap;
@@ -558,6 +578,12 @@ function App() {
                     overflow: hidden;
                     text-overflow: ellipsis;
                     flex-grow: 1;
+                }
+                .movie-card .features span {
+                    background-color: rgba(55, 48, 163, 0.9);
+                    padding: 0 2px;
+                    border-radius: 2px;
+                    font-size: 0.55rem;
                 }
                 .movie-card button {
                     flex-shrink: 0;
@@ -628,12 +654,12 @@ function App() {
 
                 /* Ensure the scheduler takes almost full width */
                 .scheduler-wrapper {
-                    background-color: rgba(139, 92, 246, 0.7); /* purple-700 with opacity */
-                    padding: 1.5rem; /* p-6 */
-                    border-radius: 0.75rem; /* rounded-xl */
-                    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04); /* shadow-2xl */
-                    width: calc(100vw - 3rem); /* Almost full viewport width minus side padding */
-                    max-width: none; /* Override max-w from Tailwind */
+                    background-color: rgba(139, 92, 246, 0.7);
+                    padding: 1rem; /* compact padding */
+                    border-radius: 0.75rem;
+                    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04);
+                    width: calc(100vw - 2rem);
+                    max-width: none;
                 }
 
                 /* Adjust margin top for main content if sticky header is used */
@@ -707,32 +733,30 @@ function App() {
                     {/* Conditional rendering based on currentPage */}
                     {currentPage === 'programming' && (
                         <div className="scheduler-wrapper">
-                            <h2 className="text-2xl font-semibold mb-5 text-center">Weekprogramma</h2>
+                            <h2 className="text-xl font-semibold mb-3 text-center">Weekprogramma</h2>
 
                             {/* Week Navigation */}
-                            <div className="flex justify-between items-center mb-4 px-2">
+                            <div className="flex flex-wrap justify-between items-center mb-3 px-2 gap-2 text-sm">
                                 <button
                                     onClick={goToPreviousWeek}
-                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     &larr; Vorige week
                                 </button>
-                                <span className="text-xl font-semibold text-center">
+                                <span className="text-lg font-semibold text-center flex-grow">
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(currentWeekStart)}
                                     {' - '}
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(daysOfWeek[6].fullDate ? parseDate(daysOfWeek[6].fullDate) : new Date())}
                                 </span>
                                 <button
                                     onClick={goToNextWeek}
-                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     Volgende week &rarr;
                                 </button>
-                            </div>
-                            <div className="text-center mb-4">
                                 <button
                                     onClick={goToToday}
-                                    className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-5 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-purple-500 hover:bg-purple-600 text-white py-1 px-3 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     Vandaag
                                 </button>
@@ -787,6 +811,11 @@ function App() {
                                                                         <div className="movie-info">
                                                                             <p className="movie-time">{movie.time}</p>
                                                                             <h4 className="movie-title">{movie.title}</h4>
+                                                                            <div className="features flex gap-1 ml-1">
+                                                                                {movie.features && Object.keys(movie.features).filter(f => movie.features[f]).map(f => (
+                                                                                    <span key={f} className="bg-purple-900 px-1 rounded text-[0.55rem]">{f}</span>
+                                                                                ))}
+                                                                            </div>
                                                                         </div>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); handleDeleteMovie(movie.id); }}
@@ -851,6 +880,11 @@ function App() {
                                                                         <div className="movie-info">
                                                                             <p className="movie-time">{movie.time}</p>
                                                                             <h4 className="movie-title">{movie.title}</h4>
+                                                                            <div className="features flex gap-1 ml-1">
+                                                                                {movie.features && Object.keys(movie.features).filter(f => movie.features[f]).map(f => (
+                                                                                    <span key={f} className="bg-purple-900 px-1 rounded text-[0.55rem]">{f}</span>
+                                                                                ))}
+                                                                            </div>
                                                                         </div>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); handleDeleteMovie(movie.id); }}

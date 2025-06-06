@@ -10,11 +10,13 @@ function MovieManagementPage({ movies, handleEditMovie, handleDeleteMovie }) {
                     movies.map((movie) => (
                         <div key={movie.id} className="bg-purple-800 p-4 rounded-lg shadow-md flex flex-col justify-between">
                             <div>
-                                <h3 className="text-lg font-bold">{movie.title}</h3>
-                                <p className="text-purple-300 text-sm">Datum: {movie.date}</p>
-                                <p className="text-purple-300 text-sm">Tijd: {movie.time}</p>
-                                <p className="text-purple-300 text-sm">Zaal: {movie.hall}</p>
-                                <p className="text-purple-300 text-sm">Duur: {movie.duration} min</p>
+                                <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
+                                <p className="text-purple-300 text-sm mb-2">Duur: {movie.duration} min</p>
+                                <div className="flex gap-2 mb-2">
+                                    {movie.features && Object.keys(movie.features).filter(f => movie.features[f]).map(f => (
+                                        <span key={f} className="bg-purple-600 px-2 py-0.5 rounded text-xs">{f}</span>
+                                    ))}
+                                </div>
                             </div>
                             <div className="mt-4 flex gap-2">
                                 <button
