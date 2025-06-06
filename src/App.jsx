@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import MovieModal from "./components/MovieModal";
-import MenuBar from "./components/MenuBar";
-import MovieManagementPage from "./components/MovieManagementPage";
-import SettingsPage from "./components/SettingsPage";
+import MovieModal from "./components/MovieModal.jsx";
+import MenuBar from "./components/MenuBar.jsx";
+import MovieManagementPage from "./components/MovieManagementPage.jsx";
+import SettingsPage from "./components/SettingsPage.jsx";
 import { halls, predefinedMovies } from "./constants";
 import { formatDate, parseDate, getMonday } from "./utils";
 
@@ -388,12 +388,8 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-800 to-indigo-900 text-white font-inter flex flex-col items-center">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <script src="https://cdn.tailwindcss.com"></script>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 
-            <style>
-                {`
+            <style>{`
                 body { font-family: 'Inter', sans-serif; }
                 .fade-in {
                     animation: fadeIn 0.5s ease-out;
@@ -586,8 +582,7 @@ function App() {
                 .main-content {
                     margin-top: 0; /* No explicit margin-top, managed by sticky behavior */
                 }
-                `}
-            </style>
+                `}</style>
 
             <div className="app-container">
                 {/* Menu Bar */}
