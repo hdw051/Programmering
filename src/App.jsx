@@ -481,6 +481,7 @@ function App() {
                     display: grid;
                     grid-template-columns: 120px repeat(${timeSlots.length}, minmax(40px, 1fr));
                     min-width: calc(120px + ${timeSlots.length} * 40px); /* Ensure minimum width for scrolling */
+                    grid-auto-rows: 30px; /* Keep rows at a fixed height */
                 }
                 .grid-header, .grid-cell {
                     padding: 2px;
@@ -491,7 +492,7 @@ function App() {
                     justify-content: center;
                     align-items: center;
                     box-sizing: border-box;
-                    min-height: 30px;
+                    height: 30px; /* Prevent row height from expanding */
                     font-size: 0.7rem;
                 }
                 .grid-header {
