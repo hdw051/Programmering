@@ -642,12 +642,12 @@ function App() {
 
                 /* Ensure the scheduler takes almost full width */
                 .scheduler-wrapper {
-                    background-color: rgba(139, 92, 246, 0.7); /* purple-700 with opacity */
-                    padding: 1.5rem; /* p-6 */
-                    border-radius: 0.75rem; /* rounded-xl */
-                    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04); /* shadow-2xl */
-                    width: calc(100vw - 3rem); /* Almost full viewport width minus side padding */
-                    max-width: none; /* Override max-w from Tailwind */
+                    background-color: rgba(139, 92, 246, 0.7);
+                    padding: 1rem; /* compact padding */
+                    border-radius: 0.75rem;
+                    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04);
+                    width: calc(100vw - 2rem);
+                    max-width: none;
                 }
 
                 /* Adjust margin top for main content if sticky header is used */
@@ -721,30 +721,30 @@ function App() {
                     {/* Conditional rendering based on currentPage */}
                     {currentPage === 'programming' && (
                         <div className="scheduler-wrapper">
-                            <h2 className="text-2xl font-semibold mb-5 text-center">Weekprogramma</h2>
+                            <h2 className="text-xl font-semibold mb-3 text-center">Weekprogramma</h2>
 
                             {/* Week Navigation */}
-                            <div className="flex flex-wrap justify-between items-center mb-4 px-2 gap-2">
+                            <div className="flex flex-wrap justify-between items-center mb-3 px-2 gap-2 text-sm">
                                 <button
                                     onClick={goToPreviousWeek}
-                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     &larr; Vorige week
                                 </button>
-                                <span className="text-xl font-semibold text-center flex-grow">
+                                <span className="text-lg font-semibold text-center flex-grow">
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(currentWeekStart)}
                                     {' - '}
                                     {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(daysOfWeek[6].fullDate ? parseDate(daysOfWeek[6].fullDate) : new Date())}
                                 </span>
                                 <button
                                     onClick={goToNextWeek}
-                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     Volgende week &rarr;
                                 </button>
                                 <button
                                     onClick={goToToday}
-                                    className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-5 rounded-lg transition-all duration-200 shadow-md"
+                                    className="bg-purple-500 hover:bg-purple-600 text-white py-1 px-3 rounded-md transition-all duration-200 shadow-md"
                                 >
                                     Vandaag
                                 </button>
