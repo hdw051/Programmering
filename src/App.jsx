@@ -326,9 +326,10 @@ function App() {
 
     // --- Drag and Drop Handlers ---
     const handleDragStart = (e, movieBeingDragged = null) => {
+        e.dataTransfer.effectAllowed = 'move';
         if (movieBeingDragged) {
             // Dragging an existing movie from the schedule
-            e.dataTransfer.setData('text/plain', JSON.stringify({
+            const payload = {
                 type: 'existing',
                 id: movieBeingDragged.id,
                 title: movieBeingDragged.title,
@@ -337,14 +338,16 @@ function App() {
                 originalDate: movieBeingDragged.date,
                 originalHall: movieBeingDragged.hall,
                 originalTime: movieBeingDragged.time
-            }));
-            dragMovieRef.current = { id: movieBeingDragged.id, type: 'existing' };
+            };
+            e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+            dragMovieRef.current = payload;
         } else {
             // Dragging a new movie from the quick add menu
             const selectedMovie = predefinedMovies.find(m => m.title === selectedPredefinedMovieForQuickAdd);
             if (selectedMovie && selectedMovie.title !== 'Kies een film...') {
-                e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'new', movie: selectedMovie }));
-                dragMovieRef.current = { type: 'new', movie: selectedMovie };
+                const payload = { type: 'new', movie: selectedMovie };
+                e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+                dragMovieRef.current = payload;
             } else {
                 e.preventDefault(); // Prevent drag if no movie selected
             }
@@ -364,6 +367,7 @@ function App() {
 
     const handleDragOver = (e) => {
         e.preventDefault(); // Necessary to allow a drop
+        e.dataTransfer.dropEffect = 'move';
     };
 
     const handleDrop = async (e, dayFullDate, hallName, slotTime) => {
@@ -371,9 +375,15 @@ function App() {
 
         let draggedData;
         try {
-            draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const text = e.dataTransfer.getData('text/plain');
+            draggedData = text ? JSON.parse(text) : null;
         } catch (error) {
             console.error("Error parsing dragged movie data:", error);
+        }
+        if (!draggedData && dragMovieRef.current) {
+            draggedData = dragMovieRef.current;
+        }
+        if (!draggedData) {
             setMessage("Fout bij het verwerken van slepen en neerzetten.");
             setTimeout(() => setMessage(''), 3000);
             return;

@@ -12,8 +12,8 @@ function MenuBar({
     toggleViewMode
 }) {
     return (
-        <div className="bg-purple-800 text-white w-full py-2 px-4 shadow-xl flex flex-col sm:flex-row items-center justify-between sticky top-0 z-20 text-sm">
-            <h1 className="text-lg font-bold mb-1 sm:mb-0 mr-3">Bioscoop Planner</h1>
+        <div className="bg-purple-800 text-white w-full py-1 px-2 shadow-xl flex flex-col sm:flex-row items-center justify-between sticky top-0 z-20 text-sm">
+            <h1 className="text-base font-bold mb-1 sm:mb-0 mr-2">Bioscoop Planner</h1>
             <nav className="flex gap-2 mb-1 sm:mb-0">
                 <button
                     onClick={() => setCurrentPage('programming')}
